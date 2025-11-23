@@ -1,71 +1,221 @@
+#  ---------- List untuk menyimpan data 
+inventaris = []
+data_penyewaan = []
 
-mobil = {}
+#  ------------- fungsi pembantu
 
-def listkendaraan():
-    if not mobil:
-        print("Belum ada data")
+# membuat id unik di list inventaris dan penyewa
+def id_unik(data):
+    return len(data) + 1
+
+def pencaripelanggan(penyewaid): # pid = penyewwa id
+    for pid in penyewa:
+        if pid['id'] == penyewaid:
+            return pid
+    return None
+
+def pencarian_barang(itemid):
+    for item in inventaris:
+        if item['id'] == itemid:
+            return item
+    return None
+
+
+# ------- Data inventaris ------------
+
+#  menampilkan data dala list inventaris
+def tampilkan_inventaris():
+    if not inventaris:
+        print("Belum Ada Item Pada Inventaris")
         return
-    for key,data in mobil.items():
-        print(f"Plat Nomor : {key} | Jenis : {data[0]} | Tipe Kendaraan : {data[1]} | Tahun Produksi {data[2]}")
+    print(f"{'ID':<3} | {'Nama':<20} | {'Stok':<5} | {'Harga/Hari':<10} | {'Deskripsi':<35} |")
+    print("=" * 90)
+    for item in inventaris:
+        print(f"{item['id']:<3} | {item['nama']:<20} | {item['stok']:<5} | {item['harga']:<10} | {item['Deskripsi']:<35} |")
 
-def tambahkendaraan():
-    # validasi plat nomor
+#  menambahkan data barang
+def tambahkan_inventaris():
+    print("Menambahkan Item Inventaris")
+    
+    namaitem = input("Masukan Nama Item : ").strip().title()
+    if not namaitem:
+        print("--Nama tidak boleh kosong--")
+        return
+    
     while True:
-        plat = input("Masukan Plat Kendaraan(Cnt : S0001AB): ").strip().upper()
-        if not plat:
-            print("Plat yang anda masukan kosong")
+        try:
+            stok = int(input("Stok: "))
+            harga = int(input("Harga per hari: "))
+            if stok < 0 or harga < 0:
+                print("Harga Atau Stok Tidak Boleh Minus")
+                continue
+            break
+        except:
+            print("Input harus angka!")
             continue
-        Nplat = len(plat)
-        if Nplat != 7:
-            print("Plat harus memiliki 7 karakter")
+
+    deskripsi = input("Masukan Deksripsi Barang :  ").title()
+    item = {
+    "id": id_unik(inventaris),
+    "nama": namaitem,
+    "stok": stok,
+    "harga": harga,
+    "Deskripsi": deskripsi
+    }
+    inventaris.append(item)
+    print("Item berhasil ditambahkan.")
+
+
+# -------------------- data penyewa ----------------------------
+# menambahkan penyewa
+def tambah_penyewa():
+    pass
+#     while True:
+#         nama = input("Nama penyewa : ").strip().capitalize()
+#         if not nama:
+#             print("Nama tidak boleh kosong")
+#             continue
+#         if not nama.isalpha():
+#             print("Terdapat angka didalam input nama")
+#             continue
+#         break
+    
+#     while True:
+#         telepon = input("Nomor Telepon penyewa : ")
+#         if not telepon:
+#             print("Nomor telepon hanya boleh berisi angka")
+#             continue
+#         if not telepon.isdigit():
+#             print("Terdapat angka didalam input nama")
+#             continue
+#         break
+    
+#     namapenyewa = {
+#     "id": id_unik(penyewa),
+#     "nama":nama,
+#     "telepon":telepon
+#     }
+#     penyewa.append(namapenyewa)
+#     print("Penyewa telah berhasil ditambahkan.")
+
+
+def list_penyewa():
+    if not penyewa:
+        print("Tidak ada data penyewa")
+        return
+    print(f"{'ID':<3} | {'Nama':<15} | {'Telepon':<15}")
+    for np in penyewa:
+        print(f"{np['id']:<3} - {np['nama']:<15} | {np['telepon']:<15}")
+
+#  ----------- sistem penyewaan --------
+def tampilkan_penyewa():
+    if not data_penyewaan:
+        print("--Belum ada penyewa--")
+        return
+    print(f"{'id':<3} | {'nama'} | {'telepon'} | {'id_item'} | {'jumlah'} | {'hari'} | {'status'}")
+    for data in data_penyewaan:
+        print(f"{data['id']:<3} | {data['nama']:<15} | {data['telepon']:<13} | {data['id_item']:<3} | {data['jumlah']:<5} | {data['hari']:<4} | {data['status']:<15} ")
+
+def penyewaan_item():
+    tampilkan_inventaris()
+    try: 
+        id_item = int(input("ID barang yang ingin disewa : "))
+        if not id_item:
+            print("Input kosong")
+    except ValueError:
+        print("inout tidak valid,tolong hanya masukan angka (integer)")
+        return
+    
+    item = pencarian_barang(id_item)   
+    if not item:
+        print("Item tidak ditemukan.")
+        return
+    if item["stok"] <= 0:
+        print("Stok habis")
+        return
+
+    try:
+        jumlah = int(input("Jumlah item/barang : "))
+        hari = int(input("Lama sewa (hari) : "))
+    except ValueError:
+        print("inout tidak valid,tolong hanya masukan angka (integer)")
+        return
+    
+    if jumlah <= 0 or hari <= 0:
+        print("Jumlah barang dan Lama sewa Tidak Boleh Minus")
+        return
+    
+    while True:
+        nama = input("Nama penyewa : ").strip().capitalize()
+        if not nama:
+            print("Nama tidak boleh kosong")
+            continue
+        if not nama.isalpha():
+            print("Terdapat angka didalam input nama")
             continue
         break
     
-    # jenis kendaraan
     while True:
-        jeniskendaraan = input("Jenis kendaraan (Mobil/Motor) : ").capitalize()
-        if jeniskendaraan not in ["Motor","Mobil"]:
-            print("Jenis kendaraan invalid")
+        telepon = input("Nomor Telepon penyewa : ")
+        if not telepon:
+            print("Nomor telepon hanya boleh berisi angka")
+            continue
+        if not telepon.isdigit():
+            print("Terdapat angka didalam input nama")
             continue
         break
     
-    # tipe kendaraan
-    while True:
-        tipe = input(f"Masukan Tipe {jeniskendaraan} : ").title()
-        if not tipe:
-            print("Tipe tidak boleh kosong")
-            continue
-        break
+    sewa = {
+        "id": id_unik(data_penyewaan),
+        "nama": nama,
+        "telepon": telepon,
+        "id_item": item['id'],
+        "jumlah": jumlah,
+        "hari": hari,
+        "status": "Sedang Di Sewa"
+    }
+    data_penyewaan.append(sewa)
     
-    # Tahun produksi
+    item["stok"] -= jumlah
+    
+    totalbiayasewa = jumlah * item['harga'] * hari
+    print(f"""Sewa berhasil
+Total harga : {totalbiayasewa}
+""") 
+
+def menu():
     while True:
-        tahun = input("Masukan tahun produksi : ").strip()
-        if not tahun.isdigit():
-            print("Wajib berisi angka")
-            continue
-        tahun = len(tahun)
-        if tahun != 4:
-            print("Input tahun harus 4 digit angka")
-            continue
-        break
-    mobil[plat] = [jeniskendaraan,tipe,tahun]
-    print(f"Data {tipe} berhasil di tambhakan")
+        print("""
+==== PENYEWAAN PERLENGKAPAN CAMPING ====
+|1. |Lihat inventaris                  | 
+|2. |Tambah item inventaris            |
+|3. |Daftar penyewa                    |
+|4. |Menyewa Item                      |
+|5. |Kembalikan item                   |
+|6. |Lihat sewa aktif                  |
+|   |                                  |
+|0. |Keluar                            |
+========================================
+""")
+        pilihan = input("Pilih menu: ")
 
+        if pilihan == "1":
+            tampilkan_inventaris()
+        elif pilihan == "2":
+            tambahkan_inventaris()
+        elif pilihan == "3":
+            tampilkan_penyewa()
+        elif pilihan == "4":
+            penyewaan_item()
+        elif pilihan == "5":
+            pass
+        elif pilihan == "6":
+            pass
+        elif pilihan == "0":
+            print("Keluar...")
+            break
+        else:
+            print("Menu tidak dikenal.")
 
-
-# def tampilan_menu():
-#     print("""
-# ==== Penyewaan Kendaraan ===
-# 1.  Lihat Kendaraan
-# 2.  Tambah Kendaraan
-# 3.  
-# 4.
-# """)
-while True:
-    i = input("masukan : ")
-    if i == "1":
-        listkendaraan()
-    elif i == "2":
-        tambahkendaraan()
-    elif i == "0":
-        break
+# ------------------ menjlankan program ------------------
+menu()
