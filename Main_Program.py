@@ -99,22 +99,23 @@ def tambah_penyewa():
 #     print("Penyewa telah berhasil ditambahkan.")
 
 
-def list_penyewa():
-    if not penyewa:
-        print("Tidak ada data penyewa")
-        return
-    print(f"{'ID':<3} | {'Nama':<15} | {'Telepon':<15}")
-    for np in penyewa:
-        print(f"{np['id']:<3} - {np['nama']:<15} | {np['telepon']:<15}")
+# def list_penyewa():
+#     if not penyewa:
+#         print("Tidak ada data penyewa")
+#         return
+#     print(f"{'ID':<3} | {'Nama':<15} | {'Telepon':<15}")
+#     for np in penyewa:
+#         print(f"{np['id']:<3} - {np['nama']:<15} | {np['telepon']:<15}")
 
 #  ----------- sistem penyewaan --------
+
 def tampilkan_penyewa():
     if not data_penyewaan:
         print("--Belum ada penyewa--")
         return
-    print(f"{'id':<3} | {'nama'} | {'telepon'} | {'id_item'} | {'jumlah'} | {'hari'} | {'status'}")
+    print(f"{'ID':<3} | {'nama':<15} | {'telepon':<13} | {'ID Item':<7} | {'jumlah':<5} | {'hari':<4} | {'status':<15}")
     for data in data_penyewaan:
-        print(f"{data['id']:<3} | {data['nama']:<15} | {data['telepon']:<13} | {data['id_item']:<3} | {data['jumlah']:<5} | {data['hari']:<4} | {data['status']:<15} ")
+        print(f"{data['id']:<3} | {data['nama']:<15} | {data['telepon']:<13} | {data['id_item']:<7} | {data['jumlah']:<5} | {data['hari']:<4} | {data['status']:<15} ")
 
 def penyewaan_item():
     tampilkan_inventaris()
