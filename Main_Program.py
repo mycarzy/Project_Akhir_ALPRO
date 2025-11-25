@@ -1,5 +1,8 @@
 #  ---------- List untuk menyimpan data 
-inventaris = []
+inventaris = [
+    {"id": 1, "nama": "Tenda", "stok": 10, "harga": 150000, "Deskripsi": "Tenda camping kapasitas 4 orang"},
+    {"id": 2, "nama": "Sleeping Bag", "stok": 20, "harga": 20000, "Deskripsi": "Sleeping bag nyaman dan hangat"},
+]
 data_penyewaan = []
 
 #  ------------- fungsi pembantu
@@ -8,11 +11,11 @@ data_penyewaan = []
 def id_unik(data):
     return len(data) + 1
 
-def pencaripelanggan(penyewaid): # pid = penyewwa id
-    for pid in penyewa:
-        if pid['id'] == penyewaid:
-            return pid
-    return None
+# def pencaripelanggan(penyewaid): # pid = penyewwa id
+#     for pid in penyewa:
+#         if pid['id'] == penyewaid:
+#             return pid
+#     return None
 
 def pencarian_barang(itemid):
     for item in inventaris:
@@ -65,60 +68,22 @@ def tambahkan_inventaris():
     inventaris.append(item)
     print("Item berhasil ditambahkan.")
 
-
-# -------------------- data penyewa ----------------------------
-# menambahkan penyewa
-def tambah_penyewa():
-    pass
-#     while True:
-#         nama = input("Nama penyewa : ").strip().capitalize()
-#         if not nama:
-#             print("Nama tidak boleh kosong")
-#             continue
-#         if not nama.isalpha():
-#             print("Terdapat angka didalam input nama")
-#             continue
-#         break
-    
-#     while True:
-#         telepon = input("Nomor Telepon penyewa : ")
-#         if not telepon:
-#             print("Nomor telepon hanya boleh berisi angka")
-#             continue
-#         if not telepon.isdigit():
-#             print("Terdapat angka didalam input nama")
-#             continue
-#         break
-    
-#     namapenyewa = {
-#     "id": id_unik(penyewa),
-#     "nama":nama,
-#     "telepon":telepon
-#     }
-#     penyewa.append(namapenyewa)
-#     print("Penyewa telah berhasil ditambahkan.")
-
-
-# def list_penyewa():
-#     if not penyewa:
-#         print("Tidak ada data penyewa")
-#         return
-#     print(f"{'ID':<3} | {'Nama':<15} | {'Telepon':<15}")
-#     for np in penyewa:
-#         print(f"{np['id']:<3} - {np['nama']:<15} | {np['telepon']:<15}")
-
 #  ----------- sistem penyewaan --------
 
 def tampilkan_penyewa():
     if not data_penyewaan:
         print("--Belum ada penyewa--")
         return
-    print(f"{'ID':<3} | {'nama':<15} | {'telepon':<13} | {'ID Item':<7} | {'jumlah':<5} | {'hari':<4} | {'status':<15}")
+    print(f"{'ID':<3} | {'nama':<15} | {'telepon':<13} | {'ID Item':<7} | {'jumlah':<7} | {'hari':<4} | {'status':<15}")
     for data in data_penyewaan:
-        print(f"{data['id']:<3} | {data['nama']:<15} | {data['telepon']:<13} | {data['id_item']:<7} | {data['jumlah']:<5} | {data['hari']:<4} | {data['status']:<15} ")
+        print(f"{data['id']:<3} | {data['nama']:<15} | {data['telepon']:<13} | {data['id_item']:<7} | {data['jumlah']:<7} | {data['hari']:<4} | {data['status']:<15} ")
 
 def penyewaan_item():
     tampilkan_inventaris()
+    if not inventaris:
+        print("Belum ada inventaris, tidak dapat melakukan penyewaan.")
+        return
+    
     try: 
         id_item = int(input("ID barang yang ingin disewa : "))
         if not id_item:
@@ -141,9 +106,11 @@ def penyewaan_item():
     except ValueError:
         print("inout tidak valid,tolong hanya masukan angka (integer)")
         return
-    
     if jumlah <= 0 or hari <= 0:
         print("Jumlah barang dan Lama sewa Tidak Boleh Minus")
+        return
+    if jumlah > item["stok"]:
+        print(f"Stok tidak mencukupi. Stok tersedia: {item['stok']}")
         return
     
     while True:
@@ -163,6 +130,9 @@ def penyewaan_item():
             continue
         if not telepon.isdigit():
             print("Terdapat angka didalam input nama")
+            continue
+        if not telepon.startswith("08") or not (11 <= len(telepon) <= 13):
+            print("Nomor telepon harus diawali '08' dan mengandun 11-13 digit angka")
             continue
         break
     
@@ -184,6 +154,64 @@ def penyewaan_item():
 Total harga : {totalbiayasewa}
 """) 
 
+
+
+#  belum jadi
+def pengembalian_item ():
+    tampilkan_penyewa()
+    while True:
+        try: 
+            idsewa = int(input("Masukan ID penyewaan yang mau di kembalikan : "))
+            break
+        except ValueError:
+            print("--Input Id hanya menerima angka--")
+            continue
+    
+    penyewa = None
+    for penyewa in data_penyewaan:
+        if penyewa["id"] == idsewa:
+            break
+    
+    if not penyewa:
+        print("Penyewq tidak ditemukan")
+        return
+    
+    for item in inventaris:
+        if item["id"] == data_penyewaan["id_item"]:
+            item['stok'] += data_penyewaan["jumlah"]
+    
+    print(f"Berhasil dikembalikan.")
+    
+#  ------------------------ Perubahan data
+
+def update_stok_barang():
+    if not inventaris:
+        print("Belum ada inventaris barang, tidak dapat melakukan update stok.")
+        return
+    
+    try:
+        id_item = int(input("Masukan ID barang yang ingin diupdate stoknya: "))
+    except ValueError:
+        print("Input tidak valid, masukan harus angka.")
+        return
+
+    item = pencarian_barang(id_item)
+    if not item:
+        print("Barang dengan ID tersebut tidak ditemukan.")
+        return
+    
+    try:
+        stok_baru = int(input(f"Masukan stok baru untuk {item['nama']}: "))
+        if stok_baru < 0:
+            print("Stok baru tidak boleh kurang dari 0.")
+            return
+    except ValueError:
+        print("Input stok harus berupa angka.")
+        return
+    
+    item['stok'] = stok_baru
+    print(f"Stok barang '{item['nama']}' berhasil diperbarui menjadi {stok_baru}.")
+
 def menu():
     while True:
         print("""
@@ -192,7 +220,7 @@ def menu():
 |2. |Tambah item inventaris            |
 |3. |Daftar penyewa                    |
 |4. |Menyewa Item                      |
-|5. |Kembalikan item                   |
+|5. |Pengembalian Item Sewa            |
 |6. |Lihat sewa aktif                  |
 |   |                                  |
 |0. |Keluar                            |
@@ -210,13 +238,14 @@ def menu():
             penyewaan_item()
         elif pilihan == "5":
             pass
+            # pengembalian_item()
         elif pilihan == "6":
-            pass
+            update_stok_barang()
         elif pilihan == "0":
-            print("Keluar...")
+            print("Keluar Program")
             break
         else:
-            print("Menu tidak dikenal.")
+            print("Menu tidak dikenal")
 
 # ------------------ menjlankan program ------------------
 menu()
