@@ -1,3 +1,6 @@
+#  denda = 5000 perhari
+
+
 #  ---------- List untuk menyimpan data 
 inventaris = [
     {"id": 1, "nama": "Tenda", "stok": 10, "harga": 150000, "Deskripsi": "Tenda camping kapasitas 4 orang"},
@@ -12,14 +15,15 @@ data_penyewaan = []
 
 # membuat id unik di list inventaris dan penyewa
 def id_unik(data):
-    return len(data) + 1
+    if not data:
+        return 1
+    return max(d.get("id", 0) for d in data) + 1
 
 def pencarian_barang(itemid):
     for item in inventaris:
         if item['id'] == itemid:
             return item
     return None
-
 
 # ------- Data inventaris ------------
 
@@ -96,7 +100,6 @@ def hapus_inventaris():
         print("Penghapusan dibatalkan.")
         return
 
-    # hapus item
     inventaris.remove(item)
     print(f"Barang '{item['nama']}' berhasil dihapus.")
 
@@ -107,15 +110,19 @@ def tampilkan_penyewa():
     if not data_penyewaan:
         print("--Belum ada penyewa--")
         return
-    print(f"{'ID':<3} | {'nama':<15} | {'telepon':<13} | {'ID Item':<7} | {'jumlah':<7} | {'hari':<4} | {'status':<15}")
+    print(f"{'ID':<3} | {'nama':<15} | {'telepon':<13} | {'ID Item':<7} | {'Nama barang':<20} | {'jumlah':<7} | {'hari':<4} | {'status':<15}")
     for data in data_penyewaan:
-        print(f"{data['id']:<3} | {data['nama']:<15} | {data['telepon']:<13} | {data['id_item']:<7} | {data['jumlah']:<7} | {data['hari']:<4} | {data['status']:<15} ")
+        print(f"{data['id']:<3} | {data['nama']:<15} | {data['telepon']:<13} | {data['id_item']:<7} | {data['nama barang']:<20} | {data['jumlah']:<7} | {data['hari']:<4} | {data['status']:<15} ")
 
 def penyewaan_item():
     tampilkan_inventaris()
     if not inventaris:
         print("Belum ada inventaris, tidak dapat melakukan penyewaan.")
         return
+    
+    print()
+    print("!!! JIKA BARANG DIKEMBALIKAN MELEBIHI BATAS SEWA, MAKA AKAN DIKENAKAN DENDA 5000 PER HARI !!!")
+    print()
     
     try: 
         id_item = int(input("ID barang yang ingin disewa : "))
@@ -176,6 +183,7 @@ def penyewaan_item():
         "nama": nama,
         "telepon": telepon,
         "id_item": item['id'],
+        "nama barang": item['nama'],
         "jumlah": jumlah,
         "hari": hari,
         "status": "Sedang Di Sewa"
@@ -187,7 +195,7 @@ def penyewaan_item():
     print(f"Data penyewa atas nama {nama} berhasil ditambahkan ke database")
 
 
-#  belum jadi
+
 def pengembalian_item ():
     tampilkan_penyewa()
     while True:
@@ -218,46 +226,96 @@ def pengembalian_item ():
     
     denda = 0
     if hari_pengembalian > penyewa["hari"]:
-        denda_hari = 5000  # denda per hari
+        denda_hari = 5000 
         denda = (hari_pengembalian - penyewa["hari"]) * denda_hari
-        print(f"Denda keterlambatan: Rp{denda}")
+        # print(f"Denda keterlambatan: Rp{denda}")
 
     total_bayar = penyewa["jumlah"] * item["harga"] * penyewa["hari"] + denda
-    print(f"Total pembayaran termasuk denda: Rp{total_bayar}")
+    # print(f"Total pembayaran termasuk denda: Rp{total_bayar}")
+    
+    
+    print("\n----------- STRUK PENGEMBALIAN -----------")
+    print(f"Nama Penyewa     : {penyewa['nama']}")
+    print(f"No. Telepon      : {penyewa['telepon']}")
+    print(f"Barang           : {item['nama']}")
+    print(f"Jumlah           : {penyewa['jumlah']}")
+    print(f"Harga per Hari   : Rp{item['harga']}")
+    print(f"Lama Sewa        : {penyewa['hari']} hari")
+    print(f"Hari Kembali     : {hari_pengembalian} hari")
+    print(f"Denda            : Rp{denda}")
+    print(f"Total Pembayaran : Rp{total_bayar}")
+    print("-----------------------------------------\n")
 
     penyewa["status"] = "Sudah Dikembalikan"
     print("Barang telah berhasil dikembalikan.")   # ---> tambahkan output seperti struk kasir
     
-#  ------------------------ Perubahan data
+#  ------------------------ Perubahan Stok
 
 def update_stok():
+    tampilkan_inventaris()
     if not inventaris:
         print("Belum ada inventaris barang, tidak dapat melakukan update stok.")
         return
+
+    # Input ID barang
     while True:
         try:
             id_item = int(input("Masukan ID barang yang ingin diupdate stoknya: "))
+            break
         except ValueError:
             print("Input hanya dapat menerima angka")
-            continue
-        break
 
     item = pencarian_barang(id_item)
     if not item:
         print("Barang dengan ID tersebut tidak ditemukan.")
         return
-    
-    try:
-        stok_baru = int(input(f"Masukan stok baru untuk {item['nama']}: "))
-        if stok_baru < 0:
-            print("Stok baru tidak boleh kurang dari 0.")
+
+    # Pilihan update stok
+    while True:
+        print("""----- Opsi Perubahan Stok ----
+1. Menambahkan Stok
+2. Mengurangi Stok
+""")
+        opsi = input("Pilih : ").strip()
+
+        if opsi not in ("1", "2"):
+            print("!!! Silahkan Pilih di antara [1, 2] !!!")
+            continue
+
+        # === Opsi 1: Tambah stok ===
+        if opsi == "1":
+            try:
+                jumlah = int(input(f"Masukan jumlah STOK yang akan ditambahkan ke '{item['nama']}': "))
+                if jumlah < 0:
+                    print("Jumlah tidak boleh negatif.")
+                    continue
+            except ValueError:
+                print("Input stok harus berupa angka.")
+                continue
+
+            item["stok"] += jumlah
+            print(f"Stok barang '{item['nama']}' berhasil ditambahkan. Stok sekarang: {item['stok']}.")
             return
-    except ValueError:
-        print("Input stok harus berupa angka.")
-        return
-    
-    item['stok'] = stok_baru
-    print(f"Stok barang '{item['nama']}' berhasil diperbarui menjadi {stok_baru}.")
+
+        # === Opsi 2: Kurangi stok ===
+        elif opsi == "2":
+            try:
+                jumlah = int(input(f"Masukan jumlah STOK yang akan dikurangi dari '{item['nama']}': "))
+                if jumlah < 0:
+                    print("Jumlah tidak boleh negatif.")
+                    continue
+            except ValueError:
+                print("Input stok harus berupa angka.")
+                continue
+
+            if jumlah > item["stok"]:
+                print("Jumlah pengurangan melebihi stok yang tersedia.")
+                continue
+
+            item["stok"] -= jumlah
+            print(f"Stok barang '{item['nama']}' berhasil dikurangi. Stok sekarang: {item['stok']}.")
+            return
+
 
 def menu():
     while True:
