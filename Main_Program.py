@@ -1,23 +1,23 @@
-#  denda = 5000 perhari
 
+#  -------------- List untuk menyimpan data --------------
 
-#  ---------- List untuk menyimpan data 
+# Index id,nama,stok,harga,Deskripsi
 inventaris = [
     {"id": 1, "nama": "Tenda", "stok": 10, "harga": 150000, "Deskripsi": "Tenda camping kapasitas 4 orang"},
     {"id": 2, "nama": "Sleeping Bag", "stok": 20, "harga": 20000, "Deskripsi": "Sleeping bag nyaman dan hangat"},
     {"id": 3, "nama": "Kompor Portable", "stok": 5, "harga": 30000, "Deskripsi": "Kompor kecil, mudah dibawa"},
     {"id": 4, "nama": "Lampu Senter", "stok": 30, "harga": 10000, "Deskripsi": "Lampu senter baterai"},
     {"id": 5, "nama": "Kursi Lipat", "stok": 15, "harga": 15000, "Deskripsi": "Kursi lipat ringan"}
-]
+] 
+# Index id,nama,id_item,nama barang,jumlah,hari,status
 data_penyewaan = []
 
-#  ------------- fungsi pembantu
+#  -------------- fungsi pembantu --------------
 
-# membuat id unik di list inventaris dan penyewa
 def id_unik(data):
     if not data:
         return 1
-    return max(d.get("id", 0) for d in data) + 1
+    return max(idx.get("id", 0) for idx in data) + 1   # >> get digunakan untuk mengambil data pada index "id"
 
 def pencarian_barang(itemid):
     for item in inventaris:
@@ -25,37 +25,41 @@ def pencarian_barang(itemid):
             return item
     return None
 
-# ------- Data inventaris ------------
+# -------------- Data inventaris --------------
 
 #  menampilkan data dala list inventaris
 def tampilkan_inventaris():
     if not inventaris:
         print("Belum Ada Item Pada Inventaris")
         return
-    print(f"{'ID':<3} | {'Nama':<20} | {'Stok':<5} | {'Harga/Hari':<10} | {'Deskripsi':<35} |")
-    print("=" * 90)
+    print(f"{'ID':<3} | {'Nama':<20} | {'Stok':<5} | {'Harga/Hari':<10} | {'Deskripsi':<35} |") # >> :<3 → rata kiri (left-align) dalam lebar 3 karakter
+    print("-" * 90)
     for item in inventaris:
         print(f"{item['id']:<3} | {item['nama']:<20} | {item['stok']:<5} | {item['harga']:<10} | {item['Deskripsi']:<35} |")
 
 #  menambahkan data barang
 def tambahkan_inventaris():
     print("Menambahkan Item Inventaris")
-    
-    namaitem = input("Masukan Nama Item : ").strip().title()
-    if not namaitem:
-        print("--Nama tidak boleh kosong--")
-        return
-    
+    while True:
+        namaitem = input("Masukan Nama Item : ").strip().title()
+        if not namaitem:
+            print("!!Nama tidak boleh kosong!!")
+            continue
+        if namaitem.isdigit():
+            print("!!Nama tidak boleh Hanya angka!!")
+            continue
+        break
+
     while True:
         try:
             stok = int(input("Stok: "))
             harga = int(input("Harga per hari: "))
             if stok < 0 or harga < 0:
-                print("Harga Atau Stok Tidak Boleh Minus")
+                print("!!Harga Atau Stok Tidak Boleh Minus!!")
                 continue
             break
         except:
-            print("Input harus angka!")
+            print("!!Input harus angka!!")
             continue
 
     deskripsi = input("Masukan Deksripsi Barang :  ").title()
@@ -104,13 +108,14 @@ def hapus_inventaris():
     print(f"Barang '{item['nama']}' berhasil dihapus.")
 
 
-#  ----------- sistem penyewaan --------
+#  -------------- sistem penyewaan --------------
 
 def tampilkan_penyewa():
     if not data_penyewaan:
         print("--Belum ada penyewa--")
         return
     print(f"{'ID':<3} | {'nama':<15} | {'telepon':<13} | {'ID Item':<7} | {'Nama barang':<20} | {'jumlah':<7} | {'hari':<4} | {'status':<15}")
+    print("-"*90)
     for data in data_penyewaan:
         print(f"{data['id']:<3} | {data['nama']:<15} | {data['telepon']:<13} | {data['id_item']:<7} | {data['nama barang']:<20} | {data['jumlah']:<7} | {data['hari']:<4} | {data['status']:<15} ")
 
@@ -248,8 +253,9 @@ def pengembalian_item ():
 
     penyewa["status"] = "Sudah Dikembalikan"
     print("Barang telah berhasil dikembalikan.")   # ---> tambahkan output seperti struk kasir
-    
-#  ------------------------ Perubahan Stok
+
+
+#  -------------- Perubahan Stok --------------
 
 def update_stok():
     tampilkan_inventaris()
@@ -262,7 +268,7 @@ def update_stok():
         try:
             id_item = int(input("Masukan ID barang yang ingin diupdate stoknya: "))
             break
-        except ValueError:
+        except ValueError :
             print("Input hanya dapat menerima angka")
 
     item = pencarian_barang(id_item)
@@ -317,6 +323,8 @@ def update_stok():
             return
 
 
+# -------------- MENU --------------
+
 def menu():
     while True:
         print("""
@@ -326,7 +334,7 @@ def menu():
 |2. |Tambah item inventaris            |
 |3. |Hapus Item Inventaris             |
 |4. |Update Stok                       |
-|5. |Daftar penyewa                    |
+|5. |Menampilkan daftar penyewa        |
 |6. |Menyewa Item                      |
 |7. |Pengembalian Item Sewa            |                                  
 |   |                                  |
